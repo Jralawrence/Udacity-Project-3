@@ -1,5 +1,10 @@
 version: 2.1
 
+## Teams Notifications
+notify:
+  webhooks:
+    - url: https://tuigroup.webhook.office.com/webhookb2/4272eeba-8711-466d-b641-82ce412a07b0@e3e1f65b-b973-440d-b61c-bc895fc98e28/CircleCI/8ed84a7e4a69414ca75b994adf69fe47/b01d9ac0-cc80-4c4a-9b9b-f69960dbdd86 
+
 # commands:
 #   destroy-environment:
 #     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
