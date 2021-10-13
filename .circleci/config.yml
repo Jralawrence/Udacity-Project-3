@@ -137,7 +137,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udacity-project3-backend-infra-${CIRCLE_WORKFLOW_ID} \
-              --stack-name udacity-project3-backend-infra-${CIRCLE_WORKFLOW_ID} \
+              --stack-name udacity-project3-backend-infra \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
               --region eu-central-1  
 
@@ -147,7 +147,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udacity-project3-frontend-infra-${CIRCLE_WORKFLOW_ID} \
-              --stack-name udacity-project3-frontend-infra-${CIRCLE_WORKFLOW_ID} \
+              --stack-name udacity-project3-frontend-infra \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
               --region eu-central-1  
 
