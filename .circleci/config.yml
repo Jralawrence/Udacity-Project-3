@@ -139,17 +139,15 @@ jobs:
               --tags project=udacity-project3-backend-infra-${CIRCLE_WORKFLOW_ID} \
               --stack-name udacity-project3-backend-infra \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
-              --region eu-central-1  
 
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udacity-project3-frontend-infra-${CIRCLE_WORKFLOW_ID} \
-              --stack-name udacity-project3-frontend-infra \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
-              --region eu-central-1  
+              --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" 
 
       # - run:
       #     name: Add back-end ip to ansible inventory
