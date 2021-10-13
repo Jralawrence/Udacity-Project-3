@@ -5,18 +5,22 @@ notify:
   webhooks:
     - url: https://tuigroup.webhook.office.com/webhookb2/4272eeba-8711-466d-b641-82ce412a07b0@e3e1f65b-b973-440d-b61c-bc895fc98e28/CircleCI/8ed84a7e4a69414ca75b994adf69fe47/b01d9ac0-cc80-4c4a-9b9b-f69960dbdd86 
 
-# commands:
-#   destroy-environment:
-#     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#     parameters:
-#       # Add parameter here   
-#     steps:
-#       - run:
-#           name: Destroy environments
-#           when: on_fail
-#           command: |
-#             # Your code here
-#             exit 1
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            # # Delete files from bucket
+            # aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            # Delete front end stack
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID}
+            # Delete back end stack
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}
 
 #   revert-migrations:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -162,16 +166,27 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
             --request PUT --data "${WEBSITEURL}" https://api.memstash.io/values/websiteurl  
 
-      # - run:
-      #     name: Add back-end ip to ansible inventory
-      #     command: |
-      #       # Your code here
-      #       exit 1
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            BACKEND-IP=$(aws cloudformation describe-stacks \
+              --region eu-central-1 \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+              --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
+              --output text)
+             
+            echo ${BACKEND_IP}
+            
+            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
+            --request PUT --data "${BACKEND-IP}" https://api.memstash.io/values/backend-ip
+
+      - destroy-environment 
+
       # - persist_to_workspace:
       #     root: ~/
       #     paths:
       #       - project/.circleci/ansible/inventory.txt
-      # # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure      
 
 #   configure-infrastructure:
 #     docker:
