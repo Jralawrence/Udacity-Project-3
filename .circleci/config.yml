@@ -154,9 +154,10 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" 
 
       - run:
-          name: Add URL to Memstash 
+          name: Add url to memststash
           command: |
             WEBSITEURL=$(aws cloudformation describe-stacks \
+              --region eu-central-1 \
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
               --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
               --output text)
@@ -164,17 +165,8 @@ jobs:
             echo ${WEBSITEURL}
             
             curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-            --request PUT --data "${WEBSITEURL}" https://api.memstash.io/values/websiteurl  
-
-      # - run:
-      #     name: Add back-end ip to ansible inventory
-      #     command: |
-      #       aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:Project,Values=udacity" \
-      #         --output text >> inventory
-
-    
+            --request PUT --data "${WEBSITEURL}" https://api.memstash.io/values/websiteurl             
+      
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -188,13 +180,13 @@ jobs:
             
             curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
             --request PUT --data "${BACKEND_IP}" https://api.memstash.io/values/backend_ip
-
+   
       - destroy-environment 
 
-      # - persist_to_workspace:
-      #     root: ~/
-      #     paths:
-      #       - project/.circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
 
   # configure-infrastructure:
