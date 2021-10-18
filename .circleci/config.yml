@@ -211,6 +211,8 @@ jobs:
             cd .circleci/ansible/
             export ANSIBLE_HOST_KEY_CHECKING=False
             echo ${BACKEND_IP}
+            pvd
+            ls
             cat ./inventory.txt
             echo ${BACKEND_IP} >> ./inventory.txt
             ansible-playbook -i ./inventory.txt configure-server.yml
