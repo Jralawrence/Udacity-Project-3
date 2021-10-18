@@ -211,7 +211,7 @@ jobs:
             cd .circleci/ansible/
             export ANSIBLE_HOST_KEY_CHECKING=False
             echo ${BACKEND_IP}
-            pvd
+            pwd
             ls
             cat ./inventory.txt
             echo ${BACKEND_IP} >> ./inventory.txt
