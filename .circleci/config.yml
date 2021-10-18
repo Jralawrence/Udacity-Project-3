@@ -153,32 +153,41 @@ jobs:
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" 
 
-      - run:
-          name: Add URL to Memstash 
-          command: |
-            WEBSITEURL=$(aws cloudformation describe-stacks \
-              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
-              --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
-              --output text)
+      # - run:
+      #     name: Add URL to Memstash 
+      #     command: |
+      #       WEBSITEURL=$(aws cloudformation describe-stacks \
+      #         --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
+      #         --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
+      #         --output text)
               
-            echo ${WEBSITEURL}
+      #       echo ${WEBSITEURL}
             
-            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-            --request PUT --data "${WEBSITEURL}" https://api.memstash.io/values/websiteurl  
+      #       curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
+      #       --request PUT --data "${WEBSITEURL}" https://api.memstash.io/values/websiteurl  
 
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            BACKEND_IP=$(aws cloudformation describe-stacks \
-              --region eu-central-1 \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-              --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
-              --output text)
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Project,Values=udacity" \
+              --output text >> inventory
+
+    
+      # - run:
+      #     name: Add back-end ip to ansible inventory
+      #     command: |
+      #       BACKEND_IP=$(aws cloudformation describe-stacks \
+      #         --region eu-central-1 \
+      #         --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+      #         --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
+      #         --output text)
               
-            echo ${BACKEND_IP}
+      #       echo ${BACKEND_IP}
             
-            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-            --request PUT --data "${BACKEND_IP}" https://api.memstash.io/values/backend_ip
+      #       curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
+      #       --request PUT --data "${BACKEND_IP}" https://api.memstash.io/values/backend_ip
 
       - destroy-environment 
 
@@ -188,49 +197,49 @@ jobs:
       #       - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
 
-  configure-infrastructure:
-    docker:
-      - image: cytopia/ansible
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
-      - run:
-          name: Install dependencies
-          command: |
-            apk add curl
-            apk add openssh-client
-            apk add rsync
-            apk add --update ansible
+  # configure-infrastructure:
+  #   docker:
+  #     - image: cytopia/ansible
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add curl
+  #           apk add openssh-client
+  #           apk add rsync
+  #           apk add --update ansible
 
-      - run:
-          name: Configure server
-          command: |
-            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
-            cd .circleci/ansible/
-            export ANSIBLE_HOST_KEY_CHECKING=False
-            echo ${BACKEND_IP} >> ./inventory.txt
-            ansible-playbook -i ./inventory.txt configure-server.yml
+  #     - run:
+  #         name: Configure server
+  #         command: |
+  #           BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+  #           cd .circleci/ansible/
+  #           export ANSIBLE_HOST_KEY_CHECKING=False
+  #           echo ${BACKEND_IP} >> ./inventory.txt
+  #           ansible-playbook -i ./inventory.txt configure-server.yml
       
-      - destroy-environment 
-      # Here's where you will add some code to rollback on failure      
+  #     - destroy-environment 
+  #     # Here's where you will add some code to rollback on failure      
 
-#   run-migrations:
-#     docker:
-#       # Docker image here that supports NodeJS
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Run migrations
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Send migration results to memstash
-#           command: |
-#             # Your code here
-#             exit 1
-#      # Here's where you will add some code to rollback on failure      
+  # run-migrations:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Run migrations
+  #         command: |
+  #           # Your code here
+  #           exit 1
+  #     - run:
+  #         name: Send migration results to memstash
+  #         command: |
+  #           # Your code here
+  #           exit 1
+  #    # Here's where you will add some code to rollback on failure      
 
 #   deploy-frontend:
 #     docker:
@@ -346,8 +355,8 @@ workflows:
           filters:
             branches:
               only: [main]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
