@@ -197,32 +197,32 @@ jobs:
       #       - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
 
-  # configure-infrastructure:
-  #   docker:
-  #     - image: cytopia/ansible
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add curl
-  #           apk add openssh-client
-  #           apk add rsync
-  #           apk add --update ansible
+  configure-infrastructure:
+    docker:
+      - image: cytopia/ansible
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add curl
+            apk add openssh-client
+            apk add rsync
+            apk add --update ansible
 
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
-  #           cd .circleci/ansible/
-  #           export ANSIBLE_HOST_KEY_CHECKING=False
-  #           echo ${BACKEND_IP} >> ./inventory.txt
-  #           ansible-playbook -i ./inventory.txt configure-server.yml
+      - run:
+          name: Configure server
+          command: |
+            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+            cd .circleci/ansible/
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            echo ${BACKEND_IP} >> ./inventory.txt
+            ansible-playbook -i ./inventory.txt configure-server.yml
       
-  #     - destroy-environment 
-  #     # Here's where you will add some code to rollback on failure      
+      - destroy-environment 
+      # Here's where you will add some code to rollback on failure      
 
   # run-migrations:
   #   docker:
