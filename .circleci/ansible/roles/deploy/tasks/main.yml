@@ -1,0 +1,8 @@
+- name: "build package"
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+- name: "start pm2"
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm -- run "start:dev"
