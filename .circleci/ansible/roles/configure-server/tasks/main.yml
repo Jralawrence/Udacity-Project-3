@@ -15,7 +15,7 @@
   apt:
     update_cache: yes
     name: nodejs
-    state: latest
+    state: present
 
 - name: "install pm2 by npm"
   become: true
