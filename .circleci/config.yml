@@ -191,18 +191,36 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cytopia/ansible
+      - image: python:3.9.0-alpine
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
+      
       - run:
-          name: Install dependencies
+          name: Install Ansible
           command: |
-            apk add curl
-            apk add openssh-client
-            apk add rsync
             apk add --update ansible
+            ansible --version
+      
+      - run:
+          name: Install Curl
+          command: |
+            apk add --update curl
+      
+      - run:
+          name: check inventory file
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt        
+      
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apk add curl
+      #       apk add openssh-client
+      #       apk add rsync
+      #       apk add --update ansible
 
       - run:
           name: Configure server
