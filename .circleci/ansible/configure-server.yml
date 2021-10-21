@@ -28,9 +28,9 @@
       become: true
       raw: apt update && apt install -y python3
 
-    - name: "install nodejs Ansible."
-      become: true
-      raw: apt install -y nodejs npm
+    # - name: "install nodejs Ansible."
+    #   become: true
+    #   raw: apt install -y nodejs npm
   
     - name: "install pm2 for Ansible."
       become: true
