@@ -254,7 +254,7 @@ jobs:
           working_directory: ./backend          
           no_output_timeout: 10m
           command: |
-            npm run migrations:revert
+            cd backend
             npm run migrations >> migration_output.txt
             cat migration_output.txt
       
