@@ -236,34 +236,41 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]      
+          keys: [backend-build] 
+      
       - run:
-          name: Install dependencies
+          name: npm install
+          working_directory: ./backend
+          command: npm install
+
+      - run:
+          name: install dependencies
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install      
+            npm install typescript
+            npm --update install python3 npm     
+      
       - run:
           name: Run migrations
-                      #print env to debug connection error 
+          working_directory: ./backend          
+          no_output_timeout: 10m
           command: |
-            printenv >> ./backend/.env
-            cd backend
-            npm run migrations > migration_status.txt
-            cat  migration_status.txt
+            npm run migrations:revert
+            npm run migrations >> migration_output.txt
+            cat migration_output.txt
+      
       - run:
           name: Send migration results to memstash
+          working_directory: ./backend
           command: |
-            cd backend
-            if grep -q "has been executed successfully" migration_status.txt
+            if grep -q "has been executed successfully." migrations_output.txt
             then
+              echo "The Migration Was Successful!!"
               curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "1" https://api.memstash.io/values/migration_status_${CIRCLE_WORKFLOW_ID}
-              echo "Databe migrated"
+              --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             else
+              echo "The Migration Was Not Successful"
               curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "0" https://api.memstash.io/values/migration_status_${CIRCLE_WORKFLOW_ID}
-              echo "There was no database migration"
+              --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
      # Here's where you will add some code to rollback on failure      
 
