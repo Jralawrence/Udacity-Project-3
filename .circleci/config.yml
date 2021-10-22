@@ -235,20 +235,15 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build] 
-      
       - run:
           name: npm install
           working_directory: ./backend
           command: npm install
-
       - run:
           name: install dependencies
           command: |
             npm install typescript
-            npm --update install python3 npm     
-      
+            npm --update install python3 npm
       - run:
           name: Run migrations
           working_directory: ./backend          
@@ -257,20 +252,17 @@ jobs:
             npm run migrations:revert
             npm run migrations >> migration_output.txt
             cat migration_output.txt
-      
       - run:
           name: Send migration results to memstash
-          working_directory: ./backend
+          working_directory: ./backend          
           command: |
-            if grep -q "has been executed successfully." migrations_output.txt
+            if grep -q "has been executed successfully" migration_output.txt
             then
-              echo "The Migration Was Successful!!"
-              curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+              echo "Migration was successful!"
+              curl -H "Content-Type: text/plain" -H "token: da647fff-0676-4705-a4fd-bda47a1e6aaa" --request PUT --data "success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             else
-              echo "The Migration Was Not Successful"
-              curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+              echo "Migration failed"
+              curl -H "Content-Type: text/plain" -H "token: da647fff-0676-4705-a4fd-bda47a1e6aaa" --request PUT --data "failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
      # Here's where you will add some code to rollback on failure      
 
