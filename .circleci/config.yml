@@ -249,7 +249,9 @@ jobs:
       - run:
           name: npm install
           working_directory: ./backend
-          command: npm install
+          command: |  
+            npm install
+            npm audit fix
 
       - run:
           name: install dependencies
