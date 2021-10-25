@@ -235,7 +235,7 @@ jobs:
       - image: circleci/node:13.8.0
     environment:
       TYPEORM_CONNECTION: postgres
-      TYPEORM_HOST: ${TYPEORM_HOST}
+      TYPEORM_HOST: udapeople-prod.cv0nubxokk0k.eu-central-1.rds.amazonaws.com
       TYPEORM_USERNAME: ${TYPEORM_USERNAME}
       TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
       TYPEORM_DATABASE: ${TYPEORM_DATABASE}
