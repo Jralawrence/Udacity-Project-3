@@ -234,13 +234,13 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     environment:
-      TYPEORM_CONNECTION: "postgres"
-      TYPEORM_HOST: ${TYPEORM_HOST}
-      TYPEORM_USERNAME: ${TYPEORM_USERNAME}
-      TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
-      TYPEORM_DATABASE: ${TYPEORM_DATABASE}
+      TYPEORM_CONNECTION: postgres
+      TYPEORM_HOST: udapeople-prod.cv0nubxokk0k.eu-central-1.rds.amazonaws.com
+      TYPEORM_USERNAME: postgres
+      TYPEORM_PASSWORD: udapeople123
+      TYPEORM_DATABASE: udapeople-prod
       TYPEORM_PORT: 5432
-      TYPEORM_ENTITIES: ${TYPEORM_ENTITIES} 
+      TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
     steps:
       - checkout
       - restore_cache:
