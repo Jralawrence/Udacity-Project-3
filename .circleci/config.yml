@@ -251,7 +251,7 @@ jobs:
           working_directory: ./backend
           command: |  
             npm install
-            npm audit fix
+            npm audit fix --audit-level=critical
 
       - run:
           name: install dependencies
