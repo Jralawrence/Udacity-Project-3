@@ -265,6 +265,7 @@ jobs:
             cd backend
             npm run migrations >> migration_output.txt
             cat migration_output.txt
+            npm run migrations:revert
      
       - run:
           name: Send migration results to memstash
