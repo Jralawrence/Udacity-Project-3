@@ -262,7 +262,6 @@ jobs:
           name: Run migrations          
           no_output_timeout: 10m
           command: |
-            printenv >> ./backend/.env            
             cd backend
             npm run migrations >> migration_output.txt
             cat migration_output.txt
