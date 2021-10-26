@@ -313,6 +313,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
+    docker:
       - image: python:3.9.0-alpine
     steps:
       - checkout
