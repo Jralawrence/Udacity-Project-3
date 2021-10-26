@@ -270,7 +270,7 @@ jobs:
           name: Send migration results to memstash
           working_directory: ./backend
           command: |
-            if grep -q "has been executed successfully." migrations_output.txt
+            if grep -q "has been executed successfully." migration_output.txt
             then
               echo "The Migration Was Successful!!"
               curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
