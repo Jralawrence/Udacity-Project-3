@@ -312,22 +312,30 @@ jobs:
             aws s3 cp dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
       # Here's where you will add some code to rollback on failure      
                     
-#   deploy-backend:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Deploy backend
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+  deploy-backend:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
+      
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            ansible --version
+            apk add --update curl
+
+      - run:
+          name: Deploy backend
+          command: |
+            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+            cd .circleci/ansible/
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            echo ${BACKEND_IP} >> ./inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+
+      # Here's where you will add some code to rollback on failure  
 
 #   smoke-test:
 #     docker:
@@ -411,8 +419,8 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
