@@ -327,14 +327,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            ansible --version
             apk add --update curl
+            apk add --update tar gzip ansible nodejs npm
+            pip install awscli
 
       - run:
           name: Deploy backend
           command: |
             BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+            tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible/
             export ANSIBLE_HOST_KEY_CHECKING=False
             echo ${BACKEND_IP} >> ./inventory.txt
