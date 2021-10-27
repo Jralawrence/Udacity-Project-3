@@ -8,37 +8,30 @@ notify:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      # Add parameter here   
+    parameters:  
+    
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            # # Delete files from bucket
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
-            # Delete front end stack
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --force
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID}
-            # Delete back end stack
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}
 
   # revert-migrations:
-  #   description: Revert the last migration if successfully run in the current workflow.
-  #   parameters:
-  #     # Add parameter here     
+  #   description: Revert the last migration if successfully run in the current workflow.    
   #   steps:
   #     - run:
   #         name: Revert migrations
-  #         # Add when this will run
   #         command: |
   #           # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
   #           SUCCESS = 1
   #           if(( $SUCCESS==1 )); 
   #           then
-  #           #  cd ~/project/backend
-  #           #  npm install
-  #           #  Add revert code here. You can find this in the Getting Started section.
-  #             exit 1
+  #             cd ~/project/backend
+  #             npm install
+  #             npm run migrations:revert
   #           fi
             
 jobs:
@@ -82,12 +75,15 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [test-frontend]
       - run:
           name: Front-end test build
           command: |
             cd frontend
             npm run test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: test-frontend            
                 
   test-backend:
     docker:
@@ -95,12 +91,15 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [test-backend]
       - run:
           name: Back-end test build
           command: |
             cd backend
             npm run test
+      - save_cache:
+          paths: [backend/node_modules]
+          key: test-backend            
             
   scan-frontend:
     docker:
@@ -108,13 +107,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [scan-frontend]
       - run:
           name: Front-end scan
           command: |
             cd frontend
             npm install
-            npm audit fix --audit-level=critical
+            npm audit fix --audit-level=critical --force
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: scan-frontend            
 
   scan-backend:
     docker:
@@ -122,13 +124,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [scan-backend]
       - run:
           name: Back-end scan
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical
+            npm audit fix --audit-level=critical --force
+      - save_cache:
+          paths: [backend/node_modules]
+          key: scan-backend
 
   deploy-infrastructure:
     docker:
