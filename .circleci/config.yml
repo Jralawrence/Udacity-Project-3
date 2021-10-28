@@ -15,9 +15,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --force
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID}
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --force
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
 
   # revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.    
@@ -80,6 +80,7 @@ jobs:
           name: Front-end test build
           command: |
             cd frontend
+            npm install
             npm run test
       - save_cache:
           paths: [frontend/node_modules]
@@ -96,6 +97,7 @@ jobs:
           name: Back-end test build
           command: |
             cd backend
+            npm install
             npm run test
       - save_cache:
           paths: [backend/node_modules]
@@ -145,31 +147,31 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+              --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
 
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
-              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" 
+              --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
 
       - run:
           name: Add url to memstash
           command: |
             WEBSITEURL=$(aws cloudformation describe-stacks \
               --region eu-central-1 \
-              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
+              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
               --output text)
               
             echo ${WEBSITEURL}
             
-            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
+            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID:0:7}" \
             --request PUT --data "${WEBSITEURL}" https://api.memstash.io/values/websiteurl             
       
       - run:
@@ -177,14 +179,21 @@ jobs:
           command: |
             BACKEND_IP=$(aws cloudformation describe-stacks \
               --region eu-central-1 \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --query 'Stacks[0].Outputs[?'OutputKey'].OutputValue' \
-              --output text)
+              --output text >> .circleci/ansible/inventory.txt)
+              cat .circleci/ansible/inventory.txt
               
             echo ${BACKEND_IP}
             
-            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
+            curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID:0:7}" \
             --request PUT --data "${BACKEND_IP}" https://api.memstash.io/values/backend_ip
+   
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+            - project/backend/
    
       - destroy-environment 
 
@@ -222,7 +231,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backend_ip)
             cd .circleci/ansible/
             export ANSIBLE_HOST_KEY_CHECKING=False
             echo ${BACKEND_IP}
@@ -278,12 +287,12 @@ jobs:
             if grep -q "has been executed successfully." migration_output.txt
             then
               echo "The Migration Was Successful!!"
-              curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+              curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID:0:7}" \
+              --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             else
               echo "The Migration Was Not Successful"
-              curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+              curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID:0:7}" \
+              --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
 
       - destroy-environment 
@@ -304,7 +313,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backend_ip)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             printenv >> ./frontend/.env            
@@ -316,7 +325,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            aws s3 cp dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
+            aws s3 cp dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
       - destroy-environment 
       # Here's where you will add some code to rollback on failure      
@@ -339,7 +348,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend_ip)
+            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backend_ip)
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible/
             export ANSIBLE_HOST_KEY_CHECKING=False
