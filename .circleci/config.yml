@@ -339,10 +339,12 @@ jobs:
       - image: python:3.9.0-alpine
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
+
       - add_ssh_keys:
           fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
+
+      - attach_workspace:
+          at: ~/
       
       - run:
           name: Install dependencies
