@@ -339,6 +339,8 @@ jobs:
       - image: python:3.9.0-alpine
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - add_ssh_keys:
           fingerprints: [c7:2f:ca:31:a3:51:90:69:6e:97:03:8a:5c:77:bc:0d]
       
@@ -352,12 +354,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            BACKEND_IP=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backend_ip)
-            tar -C backend -czvf artifact.tar.gz .
-            cd .circleci/ansible/
-            export ANSIBLE_HOST_KEY_CHECKING=False
-            echo ${BACKEND_IP} >> ./inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+
 
       - destroy-environment 
       # Here's where you will add some code to rollback on failure  
