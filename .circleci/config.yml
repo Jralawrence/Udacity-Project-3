@@ -199,7 +199,8 @@ jobs:
             - project/.circleci/ansible/inventory.txt
             - project/backend/
    
-      - destroy-environment 
+      - destroy-environment
+        workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
       # - persist_to_workspace:
       #     root: ~/
@@ -301,7 +302,8 @@ jobs:
               --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
 
-      - destroy-environment 
+      - destroy-environment
+        workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
@@ -333,7 +335,8 @@ jobs:
             cd frontend
             aws s3 cp dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      - destroy-environment 
+      - destroy-environment
+        workflow_id: ${CIRCLE_WORKFLOW_ID:0:7} 
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
