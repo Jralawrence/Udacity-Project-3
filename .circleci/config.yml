@@ -377,6 +377,18 @@ jobs:
           command: |
             apk add --update curl nodejs npm
             pip install awscli
+
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com"            
+            echo ${URL}
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
       
       - run:
           name: Backend smoke test.
@@ -393,17 +405,7 @@ jobs:
               return 1
             fi
       
-      - run:
-          name: Frontend smoke test.
-          command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com"            
-            echo ${URL}
-            if curl -s ${URL} | grep "Welcome"
-            then
-              return 0
-            else
-              return 1
-            fi
+
       
       # Here's where you will add some code to rollback on failure  
 
