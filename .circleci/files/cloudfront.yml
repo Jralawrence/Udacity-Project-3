@@ -4,7 +4,7 @@ Description: >
 Parameters:
   WorkflowID:
     Description: Unique identifier.
-    Type: tbt6f3pim2i8v39te
+    Type: String
 
 
 Resources:
