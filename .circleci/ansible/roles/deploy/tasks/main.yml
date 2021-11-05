@@ -1,26 +1,5 @@
 ---
 
-# - name: "wait 60 seconds for target connection to become reachable/usable."
-#   wait_for_connection:     
-#     timeout: 60
-
-# - name: "Install Ansible dependencies"
-#   become: true
-#   apt:
-#     name: ["nodejs", "npm", "python3", "tar", "gzip", "git"]
-#     state: latest
-#     update_cache: yes
-
-# - name: "build package"
-#   shell: |
-#     cd /home/ubuntu/backend
-#     npm run build
-
-# - name: "start pm2"
-#   shell: |
-#     cd /home/ubuntu/backend
-#     pm2 start npm -- run "start:dev"
-
 - name: Copy backend dist files to remote server
   copy:
     src: /root/project/backend
