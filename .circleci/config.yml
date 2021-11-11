@@ -307,8 +307,10 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP=3.68.112.105
+            echo echo ${BACKEND_IP}
             export API_URL="API_URL=http://${BACKEND_IP}:3030"
-            echo ${API_URL} >> "frontend/.env"         
+            echo ${API_URL}  
+            echo ${API_URL} >> "frontend/.env"       
 
       - run:
           name: Install and run npm build
