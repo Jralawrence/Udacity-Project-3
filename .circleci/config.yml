@@ -309,6 +309,10 @@ jobs:
             BACKEND_IP=3.68.112.105
             export API_URL="API_URL=http://${BACKEND_IP}:3030"
             echo ${API_URL} >> "frontend/.env"         
+
+      - run:
+          name: Install and run npm build
+          command: |         
             cd frontend
             npm install
             npm run build
